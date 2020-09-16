@@ -1,3 +1,2 @@
-export * from './Kanji';
-
-export { Kanji } from './Kanji';
+import Kanji from './Kanji';
+export { Kanji };
