@@ -1,6 +1,6 @@
 {
   "name": "react-native-kanji-animation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React Native support for kanji based on http://kanjivg.tagaini.net",
   "main": "index.js",
   "scripts": {
