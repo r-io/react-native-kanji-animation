@@ -31,7 +31,16 @@ class Kanji extends React.Component {
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      if (
+        prevProps.element !== this.props.element ||
+        prevProps.step !== this.props.step
+      ) {
+        this.componentDidMount();
+      }
+    }
+    
     if (this.paths.length > 0 && this.state.animating) {
       const { duration } = this.props;
       const { dashArray, dashOffset } = this.state;
