@@ -1,8 +1,9 @@
 {
   "name": "react-native-kanji-animation",
   "version": "1.0.2",
-  "description": "React Native support for kanji based on http://kanjivg.tagaini.net",
+  "description": "React Native Animation for Kanji strokes",
   "main": "index.js",
+  "typings": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
