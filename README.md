@@ -62,5 +62,13 @@ Example:
 this.kanji.animate();
 ```
 
+##### numOfStrokes()
+Return `number`. Obtain the total nuber of stroke of the current kanji element.
+
+Example:
+```javascript
+console.log(this.kanji.numOfStrokes());
+```
+
 ### NOTICE:
 `react-native-kanji-animation` is currently implemented and tested on Android only. Will be adding support for iOS soon.
