@@ -22,5 +22,6 @@ declare module "react-native-kanji-animation"{
 
     export class Kanji extends React.Component<KanjiProperties> {
         animate(): void;
+        numOfStrokes(): number;
     }
 }

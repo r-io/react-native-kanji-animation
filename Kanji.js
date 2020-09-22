@@ -21,8 +21,8 @@ class Kanji extends React.Component {
   }
 
   componentDidMount() {
-    const { element, step } = this.props;
-    const hex = this.getUnicodeHexadecimal(element);
+    const { step } = this.props;
+    const hex = this.getUnicodeHexadecimal();
     if (kanji[hex]) {
       this.setState({
         svgPaths: kanji[hex]['svgPaths'],
@@ -46,7 +46,18 @@ class Kanji extends React.Component {
       const { dashArray, dashOffset } = this.state;
       const animations = [];
       this.paths.map((path, index) => {
-        const strokeLength = path._component.getTotalLength() + 1;
+        if (!path) {
+          return;
+        }
+
+        // Get Stroke Length Until Found
+        let strokeLength = path._component.getTotalLength();
+        while (strokeLength === 0) {
+          strokeLength = path._component.getTotalLength();
+        }
+        strokeLength = strokeLength + 1;
+
+        // Assign Animation Value
         dashArray[index] = strokeLength;
         dashOffset[index] = new Animated.Value(strokeLength);
         animations.push(Animated.timing(dashOffset[index], {
@@ -64,12 +75,21 @@ class Kanji extends React.Component {
     this.setState({ animating: true })
   }
 
-  getUnicodeHexadecimal(character){
-    if (character.length === 1) {
-      return character.charCodeAt(0).toString(16).padStart(5, "0");
+  numOfStrokes() {
+    const hex = this.getUnicodeHexadecimal();
+    if (kanji[hex]) {
+      return kanji[hex]['numOfStroke'];
+    }
+    return 0;
+  }
+
+  getUnicodeHexadecimal(){
+    const { element } = this.props;
+    if (element.length === 1) {
+      return element.charCodeAt(0).toString(16).padStart(5, "0");
     } 
-    if (character.length === 2) {
-      return ((((character.charCodeAt(0)-0xD800)*0x400) + (character.charCodeAt(1)-0xDC00) + 0x10000)).toString(16).padStart(5, "0");
+    if (element.length === 2) {
+      return ((((element.charCodeAt(0)-0xD800)*0x400) + (element.charCodeAt(1)-0xDC00) + 0x10000)).toString(16).padStart(5, "0");
     }
     return 0;
   };
