@@ -42,11 +42,15 @@ class Kanji extends React.Component {
     }
     
     if (this.paths.length > 0 && this.state.animating) {
-      const { duration } = this.props;
-      const { dashArray, dashOffset } = this.state;
+      const { duration, previousStep } = this.props;
+      const { dashArray, dashOffset, step } = this.state;
       const animations = [];
       this.paths.map((path, index) => {
-        if (!path) {
+        if (
+          !path || 
+          previousStep && index + 1 > step || 
+          !previousStep && index + 1 != step
+        ) {
           return;
         }
 
@@ -114,12 +118,10 @@ class Kanji extends React.Component {
   renderPath(index, path) {
     const { pathProps, previousStep } = this.props;
     const { dashArray, dashOffset, step } = this.state;
-    if (
+    const opacity = (
       previousStep && index + 1 > step || 
       !previousStep && index + 1 != step
-    ) {
-      return;
-    }
+    ) ? 0 : 1;
     return (
       <AnimatedPath
         ref={e => this.paths[index] = e}
@@ -132,6 +134,7 @@ class Kanji extends React.Component {
         d={path}
         strokeDasharray={dashArray[index]}
         strokeDashoffset={dashOffset[index]}
+        strokeOpacity={opacity}
       />
     );
   }  
