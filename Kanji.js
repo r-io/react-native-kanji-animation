@@ -27,7 +27,7 @@ class Kanji extends React.Component {
       this.setState({
         svgPaths: kanji[hex]['svgPaths'],
         step: step === undefined ? kanji[hex]['numOfStroke'] : step
-      })
+      });
     }
   }
 
@@ -40,31 +40,27 @@ class Kanji extends React.Component {
         this.componentDidMount();
       }
     }
-    
+
     if (this.paths.length > 0 && this.state.animating) {
       const { duration, previousStep } = this.props;
       const { dashArray, dashOffset, step } = this.state;
       const animations = [];
       this.paths.map((path, index) => {
         if (
-          !path || 
-          previousStep && index + 1 > step || 
+          !path ||
+          previousStep && index + 1 > step ||
           !previousStep && index + 1 != step
         ) {
           return;
         }
 
-        // Get Stroke Length Until Found
-        let strokeLength = path._component.getTotalLength();
-        while (strokeLength === 0) {
-          strokeLength = path._component.getTotalLength();
-        }
-        strokeLength = strokeLength + 1;
+        let strokeLength = this.getPathLength(path) + 1;
 
         // Assign Animation Value
         dashArray[index] = strokeLength;
         dashOffset[index] = new Animated.Value(strokeLength);
         animations.push(Animated.timing(dashOffset[index], {
+          useNativeDriver: false,
           toValue: 0,
           duration,
           Easing: Easing.out
@@ -76,7 +72,7 @@ class Kanji extends React.Component {
   }
 
   animate() {
-    this.setState({ animating: true })
+    this.setState({ animating: true });
   }
 
   numOfStrokes() {
@@ -87,13 +83,26 @@ class Kanji extends React.Component {
     return 0;
   }
 
-  getUnicodeHexadecimal(){
+  getPathComponent(path) {
+    return path._component || path;
+  }
+
+  getPathLength(path) {
+    // Get Stroke Length Until Found
+    let strokeLength = this.getPathComponent(path).getTotalLength();
+    while (strokeLength === 0) {
+      strokeLength = this.getPathComponent(path).getTotalLength();
+    }
+    return strokeLength;
+  }
+
+  getUnicodeHexadecimal() {
     const { element } = this.props;
     if (element.length === 1) {
       return element.charCodeAt(0).toString(16).padStart(5, "0");
-    } 
+    }
     if (element.length === 2) {
-      return ((((element.charCodeAt(0)-0xD800)*0x400) + (element.charCodeAt(1)-0xDC00) + 0x10000)).toString(16).padStart(5, "0");
+      return ((((element.charCodeAt(0) - 0xD800) * 0x400) + (element.charCodeAt(1) - 0xDC00) + 0x10000)).toString(16).padStart(5, "0");
     }
     return 0;
   };
@@ -119,7 +128,7 @@ class Kanji extends React.Component {
     const { pathProps, previousStep } = this.props;
     const { dashArray, dashOffset, step } = this.state;
     const opacity = (
-      previousStep && index + 1 > step || 
+      previousStep && index + 1 > step ||
       !previousStep && index + 1 != step
     ) ? 0 : 1;
     return (
@@ -137,19 +146,20 @@ class Kanji extends React.Component {
         strokeOpacity={opacity}
       />
     );
-  }  
+  }
 
   render() {
-    let { size, placeholder, onPress, onLongPress } = this.props;
+    let { size, placeholder, onPress, onLongPress, containerStyle } = this.props;
     const { svgPaths } = this.state;
     return (
-      <Svg 
-        height={size} 
+      <Svg
+        style={containerStyle}
+        height={size}
         width={size}
         viewBox="0 0 109 109"
         onPress={onPress}
         onLongPress={onLongPress}
-      > 
+      >
         {svgPaths && placeholder && svgPaths.map((path, index) => this.renderPlaceholder(index, path))}
         {svgPaths && svgPaths.map((path, index) => this.renderPath(index, path))}
       </Svg>
@@ -160,6 +170,7 @@ class Kanji extends React.Component {
 
 Kanji.propTypes = {
   element: PropTypes.string.isRequired,
+  containerStyle: PropTypes.object,
   duration: PropTypes.number,
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
@@ -175,6 +186,6 @@ Kanji.defaultProps = {
   size: 109,
   duration: 250,
   previousStep: true
-};  
+};
 
 export default Kanji;

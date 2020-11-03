@@ -3,11 +3,13 @@
  * @author rio
  */
 
-declare module "react-native-kanji-animation"{
+declare module "react-native-kanji-animation" {
     import React from "react";
     import { PathProps } from "react-native-svg";
+    import { StyleProp, ViewStyle } from "react-native";
 
     export interface KanjiProperties {
+        containerStyle: StyleProp<ViewStyle>;
         element: string;
         duration?: number;
         size?: number;
