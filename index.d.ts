@@ -9,7 +9,7 @@ declare module "react-native-kanji-animation" {
     import { StyleProp, ViewStyle } from "react-native";
 
     export interface KanjiProperties {
-        containerStyle: StyleProp<ViewStyle>;
+        containerStyle?: StyleProp<ViewStyle>;
         element: string;
         duration?: number;
         size?: number;
