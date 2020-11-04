@@ -3,30 +3,37 @@ import Svg, { Path } from 'react-native-svg';
 import kanji from './kanji.json';
 import PropTypes from 'prop-types';
 import { Animated, Easing } from 'react-native';
+import { svgPathProperties } from "svg-path-properties";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 class Kanji extends React.Component {
 
-  paths = [];
-
   constructor() {
     super();
     this.state = {
       svgPaths: null,
+      pathProperties: null,
+      strokeLength: [],
       dashArray: [],
       dashOffset: [],
-      animating: false
+      animating: false,
+      animationCallback: null
     };
   }
 
   componentDidMount() {
-    const { step } = this.props;
     const hex = this.getUnicodeHexadecimal();
     if (kanji[hex]) {
+      const svgPaths = kanji[hex]['svgPaths'];
+      const pathProperties = this.strokeProperties();
+      const strokeLength = pathProperties.map(pathProperty => pathProperty.getTotalLength());
+      const step = this.props.step === undefined ? kanji[hex]['numOfStroke'] : this.props.step;
+
       this.setState({
-        svgPaths: kanji[hex]['svgPaths'],
-        step: step === undefined ? kanji[hex]['numOfStroke'] : step
+        svgPaths,
+        strokeLength,
+        step
       });
     }
   }
@@ -37,63 +44,57 @@ class Kanji extends React.Component {
         prevProps.element !== this.props.element ||
         prevProps.step !== this.props.step
       ) {
-        this.componentDidMount();
+        this.setState({ pathProperties: null }, () => {
+          this.componentDidMount();
+        });
       }
     }
 
-    if (this.paths.length > 0 && this.state.animating) {
-      const { duration, previousStep } = this.props;
-      const { dashArray, dashOffset, step } = this.state;
+    if (this.state.animating) {
+      const { duration, previousStep, easing } = this.props;
+      const { strokeLength, dashArray, dashOffset, step, animationCallback } = this.state;
       const animations = [];
-      this.paths.map((path, index) => {
-        if (
-          !path ||
-          previousStep && index + 1 > step ||
-          !previousStep && index + 1 != step
-        ) {
+      strokeLength.map((length, index) => {
+        if (previousStep && index + 1 > step || !previousStep && index + 1 != step) {
           return;
         }
 
-        let strokeLength = this.getPathLength(path) + 1;
-
         // Assign Animation Value
-        dashArray[index] = strokeLength;
-        dashOffset[index] = new Animated.Value(strokeLength);
+        dashArray[index] = length + 1;
+        dashOffset[index] = new Animated.Value(length + 2);
         animations.push(Animated.timing(dashOffset[index], {
           useNativeDriver: false,
           toValue: 0,
           duration,
-          Easing: Easing.out
+          Easing: easing || Easing.ease
         }));
       });
       this.setState({ dashArray, dashOffset, animating: false });
-      Animated.sequence(animations).start();
+      Animated.sequence(animations).start((result) => {
+        if (animationCallback) {
+          animationCallback(result);
+        }
+      });
     }
   }
 
-  animate() {
-    this.setState({ animating: true });
+  animate(callback) {
+    this.setState({ animating: true, animationCallback: callback });
   }
 
-  numOfStrokes() {
+  strokeProperties() {
+    const { pathProperties } = this.state;
+    if (pathProperties) {
+      return pathProperties;
+    }
+
     const hex = this.getUnicodeHexadecimal();
     if (kanji[hex]) {
-      return kanji[hex]['numOfStroke'];
+      const svgPaths = kanji[hex]['svgPaths'];
+      const newPathProperties = svgPaths.map(svgPath => new svgPathProperties(svgPath));
+      this.setState({ pathProperties: newPathProperties });
+      return newPathProperties;
     }
-    return 0;
-  }
-
-  getPathComponent(path) {
-    return path._component || path;
-  }
-
-  getPathLength(path) {
-    // Get Stroke Length Until Found
-    let strokeLength = this.getPathComponent(path).getTotalLength();
-    while (strokeLength === 0) {
-      strokeLength = this.getPathComponent(path).getTotalLength();
-    }
-    return strokeLength;
   }
 
   getUnicodeHexadecimal() {
@@ -127,13 +128,12 @@ class Kanji extends React.Component {
   renderPath(index, path) {
     const { pathProps, previousStep } = this.props;
     const { dashArray, dashOffset, step } = this.state;
-    const opacity = (
-      previousStep && index + 1 > step ||
-      !previousStep && index + 1 != step
-    ) ? 0 : 1;
+    if (previousStep && index + 1 > step || !previousStep && index + 1 != step) {
+      return null;
+    }
+
     return (
       <AnimatedPath
-        ref={e => this.paths[index] = e}
         key={index}
         strokeWidth={3}
         stroke="#000"
@@ -143,7 +143,6 @@ class Kanji extends React.Component {
         d={path}
         strokeDasharray={dashArray[index]}
         strokeDashoffset={dashOffset[index]}
-        strokeOpacity={opacity}
       />
     );
   }

@@ -6,10 +6,12 @@
 declare module "react-native-kanji-animation" {
     import React from "react";
     import { PathProps } from "react-native-svg";
-    import { StyleProp, ViewStyle } from "react-native";
+    import { Animated, StyleProp, ViewStyle } from "react-native";
+    import SVGPathProperties from "svg-path-properties/dist/types/svg-path-properties";
 
     export interface KanjiProperties {
         containerStyle?: StyleProp<ViewStyle>;
+        easing?: (value: number) => number;
         element: string;
         duration?: number;
         size?: number;
@@ -23,7 +25,8 @@ declare module "react-native-kanji-animation" {
     }
 
     export class Kanji extends React.Component<KanjiProperties> {
-        animate(): void;
+        animate(callback?: Animated.EndCallback): void;
         numOfStrokes(): number;
+        strokeProperties(): SVGPathProperties[];
     }
 }

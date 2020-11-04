@@ -1,6 +1,6 @@
 {
   "name": "react-native-kanji-animation",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "React Native Animation for Kanji strokes",
   "main": "index.js",
   "typings": "index.d.ts",
@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "svg-path-properties": "^1.0.9"
   },
   "devDependencies": {
     "react": "16.9.0",

@@ -39,8 +39,10 @@ render() {
 ### Reference
 
 #### Props
-| Name                           | Type             | Default                        | Description                                                                                                                                |
+| Name                           | Type             | Default        | Description |
 | ------------------------------ | ---------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| containerStyle                 | object           | null           | Style props for canvas |
+| easing                         | func             | null           | Easing function for the animation |
 | duration                       | number           | 250            | Timing for the kanji animation every stroke (in ms) |                                                            
 | element                        | string           | **REQUIRED**   | Kanji character to be drawn                         |                                                                       
 | onLongPress                    | func             | null           | Called when the character is long pressed           |                                                                                                            
@@ -54,12 +56,12 @@ render() {
 
 #### Methods
 
-##### animate()
-Starts the kanji stroke animation.
+##### animate(animationEndCallback?)
+Starts the kanji stroke animation with an optional callback after the animation ends.
 
 Example:
 ```javascript
-this.kanji.animate();
+this.kanji.animate(() => console.log("animation finished"));
 ```
 
 ##### numOfStrokes()
@@ -68,4 +70,18 @@ Return `number`. Obtain the total number of stroke of the current kanji element.
 Example:
 ```javascript
 console.log(this.kanji.numOfStrokes());
+```
+
+##### strokeProperties()
+Return `Array of SVGPathProperties`. Obtain the SVG Path Properties for each stroke with the following methods:
+
+-  getTotalLength: () => number;
+-  getPointAtLength: (fractionLength: number) => Point;
+-  getTangentAtLength: (fractionLength: number) => Point;
+-  getPropertiesAtLength: (fractionLength: number) => import("./types").PointProperties;
+-  getParts: () => PartProperties[];
+
+Example:
+```javascript
+console.log(this.kanji.strokeProperties()[0].getTotalLength());
 ```
