@@ -44,7 +44,8 @@ render() {
 | containerStyle                 | object           | null           | Style props for canvas |
 | easing                         | func             | null           | Easing function for the animation |
 | duration                       | number           | 250            | Timing for the kanji animation every stroke (in ms) |                                                            
-| element                        | string           | **REQUIRED**   | Kanji character to be drawn                         |                                                                       
+| element                        | string           | **REQUIRED**   | Kanji character to be drawn                         |
+| guideProps                      | object           | null           | Properties for Animation Guide based on Path Component of [`react-native-svg`](https://github.com/react-native-community/react-native-svg). Click [here](https://github.com/react-native-community/react-native-svg#path) for more information. Recommended to use only stroke, strokeWidth, and strokeLinecap. |
 | onLongPress                    | func             | null           | Called when the character is long pressed           |                                                                                                            
 | onPress                        | func             | null           | Called when the character is pressed                |                                                                                
 | pathProps                      | object           | null           | Properties for Kanji stroke based on Path Component of [`react-native-svg`](https://github.com/react-native-community/react-native-svg). Click [here](https://github.com/react-native-community/react-native-svg#path) for more information. Recommended to use only stroke, strokeWidth, and strokeLinecap. |
@@ -56,12 +57,23 @@ render() {
 
 #### Methods
 
-##### animate(animationEndCallback?)
-Starts the kanji stroke animation with an optional callback after the animation ends.
+##### animate(options?, animationEndCallback?)
+Starts the kanji stroke animation with an options and callback after the animation ends.
+
+Options:
+| Name                           | Type             | Description |
+| ------------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| hideGuide                      | bool             | Set to true to hide the Guide when the animation occurs |
+| previousStep                   | bool             | Will show the animation of first until n-th stroke if it's `true` or only the n-th stroke if it's `false`. By default will be the same as props. |
+| step                           | number           | Indicating the current stroke. Show the first until n-th stroke (previousStep is `true`) or only the n-th stroke (previousStep is `false`). By default will be the same as props. |      
 
 Example:
 ```javascript
-this.kanji.animate(() => console.log("animation finished"));
+this.kanji.animate({
+  step: 5,
+  previousStep: true,
+  hideGuide: true
+}, () => console.log("animation finished"));
 ```
 
 ##### numOfStrokes()
@@ -73,7 +85,7 @@ console.log(this.kanji.numOfStrokes());
 ```
 
 ##### strokeProperties()
-Return `Array of SVGPathProperties`. Obtain the SVG Path Properties for each stroke with the following methods:
+Return `Array of SVGPathProperties`. Obtain the [SVG Path Properties](https://www.npmjs.com/package/svg-path-properties) for each stroke with the following methods:
 
 -  getTotalLength: () => number;
 -  getPointAtLength: (fractionLength: number) => Point;
