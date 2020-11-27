@@ -23,18 +23,52 @@ render() {
   return (
     <Kanji
       ref={el => kanjiExample = el}
-      element="儀"
+      element="書"
       size={90}
       placeholder={true}
-      duration={300}
-      step={10}
+      duration={700}
+      step={6}
       onPress={() => kanjiExample.animate()}
     />
   );
 }
 ```
+<img src="https://media.giphy.com/media/YWImRbDnPPxfc7uqo1/giphy.gif" width="180" height="180" alt="react-native-kanji-animation" />
 
-![react-native-kanji-animation](https://media.giphy.com/media/VLdEhUlrqhz46rRQBN/giphy.gif)
+### Another Example
+
+```javascript
+<Kanji
+  ref={e => kanjiExample = e}
+  element={'字'}
+  size={200}
+  pathProps={{
+    strokeLinecap: 'square',
+    strokeWidth: 5,
+    stroke: 'red'
+  }}
+  placeholder={true}
+  placeholderProps={{
+    strokeLinecap: 'round',
+    strokeWidth: 8,
+    stroke: 'green'
+  }}
+  guideProps={{
+    strokeWidth: 15,
+    stroke: 'blue',
+    strokeOpacity: 0.7
+  }}
+  duration={1000}
+  step={0}
+  onPress={() => {
+    kanjiExample.animate({
+      previousStep: false,
+      step: 4
+    });
+  }}
+/>
+```
+<img src="https://media.giphy.com/media/7pchLkBbt8IxtuP4r6/giphy.gif" width="180" height="180" alt="react-native-kanji-animation" />
 
 ### Reference
 
