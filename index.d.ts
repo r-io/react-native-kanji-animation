@@ -14,6 +14,7 @@ declare module "react-native-kanji-animation" {
         easing?: (value: number) => number;
         element: string;
         duration?: number;
+        guideProps?: PathProps;
         size?: number;
         step?: number;
         placeholder?: boolean;
