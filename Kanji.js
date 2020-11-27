@@ -18,7 +18,8 @@ class Kanji extends React.Component {
       dashArray: [],
       dashOffset: [],
       animating: false,
-      animationCallback: null
+      animationCallback: null,
+      animationOptions: null
     };
   }
 
@@ -51,11 +52,14 @@ class Kanji extends React.Component {
     }
 
     if (this.state.animating) {
-      const { duration, previousStep, easing } = this.props;
-      const { strokeLength, dashArray, dashOffset, step, animationCallback } = this.state;
+      const { duration, easing } = this.props;
+      const { strokeLength, dashArray, dashOffset, animationCallback, animationOptions } = this.state;
       const animations = [];
       strokeLength.map((length, index) => {
-        if (previousStep && index + 1 > step || !previousStep && index + 1 != step) {
+        if (
+          animationOptions.previousStep && index + 1 > animationOptions.step || 
+          !animationOptions.previousStep && index + 1 != animationOptions.step
+        ) {
           return;
         }
 
@@ -64,13 +68,16 @@ class Kanji extends React.Component {
         dashOffset[index] = new Animated.Value(length + 2);
         animations.push(Animated.timing(dashOffset[index], {
           useNativeDriver: false,
-          toValue: 0,
+          toValue: 1,
           duration,
           Easing: easing || Easing.ease
         }));
       });
       this.setState({ dashArray, dashOffset, animating: false });
       Animated.sequence(animations).start((result) => {
+        if (result.finished) {
+          this.setState({ animationCallback: null, animationOptions: null });
+        }
         if (animationCallback) {
           animationCallback(result);
         }
@@ -78,8 +85,30 @@ class Kanji extends React.Component {
     }
   }
 
-  animate(callback) {
-    this.setState({ animating: true, animationCallback: callback });
+  animate(options, callback) { 
+    if (options && typeof options === 'function') {
+      if (callback && typeof callback === 'object') {
+        let temp = options;
+        options = callback,
+        callback = temp;
+      } else {
+        callback = options;
+        options = null;
+      }
+    }
+
+    if (!options) {
+      options = {};
+    }
+    let { previousStep, step } = options;
+    if (!previousStep) {
+      previousStep = this.props.previousStep;
+    }
+    if (!step) {
+      step = this.state.step;
+    }
+    options = { step, previousStep };
+    this.setState({ animating: true, animationCallback: callback, animationOptions: options });
   }
 
   strokeProperties() {
@@ -127,8 +156,14 @@ class Kanji extends React.Component {
 
   renderPath(index, path) {
     const { pathProps, previousStep } = this.props;
-    const { dashArray, dashOffset, step } = this.state;
-    if (previousStep && index + 1 > step || !previousStep && index + 1 != step) {
+    const { dashArray, dashOffset, step, animationOptions } = this.state;
+
+    if (
+      !animationOptions && previousStep && index + 1 > step || 
+      !animationOptions && !previousStep && index + 1 != step ||
+      animationOptions && animationOptions.previousStep && index + 1 > animationOptions.step ||
+      animationOptions && !animationOptions.previousStep && index + 1 != animationOptions.step
+    ) {
       return null;
     }
 
@@ -142,6 +177,35 @@ class Kanji extends React.Component {
         {...pathProps}
         d={path}
         strokeDasharray={dashArray[index]}
+        strokeDashoffset={dashOffset[index]}
+      />
+    );
+  }
+
+  renderGuide(index, path) {
+    const { guideProps } = this.props;
+    const { dashArray, dashOffset, animationOptions } = this.state;
+
+    if (
+      !animationOptions ||
+      animationOptions.hideGuide ||
+      animationOptions && animationOptions.previousStep && index + 1 > animationOptions.step ||
+      animationOptions && !animationOptions.previousStep && index + 1 != animationOptions.step 
+    ) {
+      return null;
+    }
+
+    return (
+      <AnimatedPath
+        key={index}
+        stroke="#f00"
+        strokeLinecap="round"
+        strokeOpacity={0.5}
+        strokeWidth={8}
+        fillOpacity={0}
+        {...guideProps}
+        d={path}
+        strokeDasharray={dashArray[index] && ("0," + dashArray[index])}
         strokeDashoffset={dashOffset[index]}
       />
     );
@@ -161,6 +225,7 @@ class Kanji extends React.Component {
       >
         {svgPaths && placeholder && svgPaths.map((path, index) => this.renderPlaceholder(index, path))}
         {svgPaths && svgPaths.map((path, index) => this.renderPath(index, path))}
+        {svgPaths && svgPaths.map((path, index) => this.renderGuide(index, path))}
       </Svg>
     );
   }
@@ -171,6 +236,7 @@ Kanji.propTypes = {
   element: PropTypes.string.isRequired,
   containerStyle: PropTypes.object,
   duration: PropTypes.number,
+  guideProps: PropTypes.object,
   onPress: PropTypes.func,
   onLongPress: PropTypes.func,
   pathProps: PropTypes.object,

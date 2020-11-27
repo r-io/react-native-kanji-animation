@@ -24,8 +24,14 @@ declare module "react-native-kanji-animation" {
         onLongPress?: () => void;
     }
 
+    export interface KanjiAnimationOptions {
+        step?: number;
+        previousStep?: boolean;
+        hideGuide?: boolean;
+    }
+
     export class Kanji extends React.Component<KanjiProperties> {
-        animate(callback?: Animated.EndCallback): void;
+        animate(options?: KanjiAnimationOptions, callback?: Animated.EndCallback): void;
         numOfStrokes(): number;
         strokeProperties(): SVGPathProperties[];
     }

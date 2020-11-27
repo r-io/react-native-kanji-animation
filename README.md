@@ -78,7 +78,7 @@ Return `Array of SVGPathProperties`. Obtain the SVG Path Properties for each str
 -  getTotalLength: () => number;
 -  getPointAtLength: (fractionLength: number) => Point;
 -  getTangentAtLength: (fractionLength: number) => Point;
--  getPropertiesAtLength: (fractionLength: number) => import("./types").PointProperties;
+-  getPropertiesAtLength: (fractionLength: number) => PointProperties;
 -  getParts: () => PartProperties[];
 
 Example:
