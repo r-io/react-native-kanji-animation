@@ -101,7 +101,7 @@ class Kanji extends React.Component {
       options = {};
     }
     let { previousStep, step } = options;
-    if (!previousStep) {
+    if (previousStep === null || previousStep === undefined) {
       previousStep = this.props.previousStep;
     }
     if (!step) {
